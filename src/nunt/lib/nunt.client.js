@@ -62,7 +62,7 @@
 		
 				that.socket.on('nunt', 
 					function(event)
-					{						
+					{					
 						onServerEvent(event);
 					}
 				);    
@@ -86,7 +86,6 @@
 				nunt.addGlobalListener(
 					function(event)
 					{					
-					
 						if (event.request)
 						{
 							// clean internal props before sending;

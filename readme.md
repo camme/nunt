@@ -4,6 +4,44 @@ Superlightweight event system for javascript. Easy to use just in the client, ea
 
 Look at the example to see how easy it works
 
+## install under nodejs
+
+npm install nunt
+
+## use on client not using nodejs
+
+	<script type="text/javascript" src="/js/lib/nunt.js"></script>
+
+## quick example (in browser, nodejs is slightly different)
+
+	(function(nunt){
+		nunt.controls.foo = function()
+		{
+
+			var that = this;
+
+			// listen to events
+			nunt.on("foo.update", update);
+			nunt.on(nunt.READY, ready);
+
+			// when we get an update event, we show the result. in this case, if its cake day
+			function ready(event)
+			{
+				console.log("all systems go!");
+			}
+
+			function update(event)
+			{
+				console.log("update event triggered. event:  ", event);		
+			}
+			
+			$(document.body).click(function(){
+				nunt.send("foo.update", {"bar": true});
+			});
+
+		};
+	})(nunt);
+	
 ## more info soon
 
 Watch this space for a better introduction to nunt

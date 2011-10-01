@@ -87,7 +87,7 @@
 	
 	var offForObjects = function(event)
 	{
-		nunt.on(event, callback, this);
+		nunt.removeListener(event, callback, this);
 	};
 	
 	
@@ -305,13 +305,26 @@
 
 	
 	// method for sending events
-	nunt.send = function(event, sender)
+	nunt.send = function(event, object, sender)
 	{
 		
 		// only send events if we arent in test mode
 		if (!nunt.unitTestMode)
 		{
+			if (typeof event == 'string')
+			{
+				object = object || {};
+				object.name = event;
+				event = object;
+			}
+			else
+			{
+				sender = object;
+			}
+		
+	
 			var eventName = typeof event == 'string' ? event : event.name;	
+		
 			if(nunt.showLog)
 			{
 				sender = sender ? sender : {name: "_root"};

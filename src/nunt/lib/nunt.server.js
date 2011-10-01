@@ -149,9 +149,10 @@ function init(server, options)
 	nunt.addGlobalListeners(
 		function(event, client)
 		{
+		
 			if (event.sendToClient)
 			{
-
+	
 				// clean internal props
 				delete event.sendToClient;
 				delete event.expose;
@@ -187,6 +188,7 @@ function init(server, options)
 				}
 				else
 				{
+					
 					// send the event to all clients
 					try
 					{
@@ -242,9 +244,28 @@ function init(server, options)
 			eventList += events;
 
 			eventList += "\n})();";
+			
+			createFolders(event.fileName);
 
 			fs.writeFileSync(event.fileName, eventList, 'utf8');
 			nunt.log("Building JS API -> Done!\n");
+		}
+		
+		function createFolders(pathToCheck)
+		{
+		    pathToCheck = path.dirname(pathToCheck);
+		    var pathParts = pathToCheck.split('/');
+		    var pathToProcess = "";
+		    for(var i = 0, ii = pathParts.length; i < ii; i++)
+		    {
+		        pathToProcess += pathParts[i] + "/"; 
+		        var exists =  path.existsSync(pathToProcess);
+		        if (!exists)
+		        {
+		            console.log("\tcreate folder " + pathToProcess);
+		            fs.mkdirSync(pathToProcess, 0775);
+		        }
+		    }
 		}
 		
 
@@ -409,6 +430,8 @@ function init(server, options)
 			}
 
 		}
+		
+
 		
 		// this is used whenever we get a transport that dindt include cookies. the client wil make sure the cookies are sent and then we tell everyone we are connected
 		function gotCookiesFromClient(e)
