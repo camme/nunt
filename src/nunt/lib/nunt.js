@@ -635,6 +635,7 @@
 	//-only for nodejs-
 	
 	var fs = require('fs');
+	var path = require('path');
 	
 	// this methods are for loading all modules in paths
 	nunt.loadPaths = function(paths)
@@ -650,23 +651,26 @@
 
 	function loadModule(startPath)
 	{
-		var files = fs.readdirSync(startPath);
-		for (var i = 0, ii = files.length; i < ii; i++)
+		if (path.existsSync(startPath))
 		{
-			var currentFile = startPath + "/" + files[i];
+			var files = fs.readdirSync(startPath);
+			for (var i = 0, ii = files.length; i < ii; i++)
+			{
+				var currentFile = startPath + "/" + files[i];
 
-			var fileStat = fs.statSync(currentFile);
-			if (fileStat.isDirectory())
-			{
-				loadModule(currentFile);
-			}
-			else
-			{
-				if (currentFile.match(/\.js$/))
+				var fileStat = fs.statSync(currentFile);
+				if (fileStat.isDirectory())
 				{
-					var moduleName = currentFile.substring(0, currentFile.length - 3);
-					require(currentFile);
-					nunt.log("\tLoaded module -> " +  moduleName);			
+					loadModule(currentFile);
+				}
+				else
+				{
+					if (currentFile.match(/\.js$/))
+					{
+						var moduleName = currentFile.substring(0, currentFile.length - 3);
+						require(currentFile);
+						nunt.log("\tLoaded module -> " +  moduleName);			
+					}
 				}
 			}
 		}
