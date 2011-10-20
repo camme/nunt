@@ -4,7 +4,6 @@ var log = nunt.log;
 function init(server, options)
 {
 
-
 	/* default config */
 	
 	var baseOptions = {
@@ -12,9 +11,10 @@ function init(server, options)
 		url: 'localhost',
 		port: 8112,
 		handlers: [],
-		socketioLogLevel: 0
+		socketioLogLevel: 0,
+		silent: false,
+		fakeSocket: false
 	};
-	
 	
 	var options = nunt.extend(baseOptions, options);
 	
@@ -41,7 +41,7 @@ function init(server, options)
 			
 		// remove unwanted stuff
 		nuntJs = nuntJs.replace(/-only for nodejs-[.\w\W]*?-end of only for nodejs-/gi, "");
-		nuntJs = nuntJs.replace(/\/\/.*?\n/g, "").replace(/[\t\n]/g, "").replace(/\*\//g, "*/\n\n");
+		//nuntJs = nuntJs.replace(/\/\/.*?\n/g, "").replace(/[\t\n]/g, "").replace(/\*\//g, "*/\n\n");
 			
 		res.send(nuntJs);
 	});
@@ -74,8 +74,51 @@ function init(server, options)
 	
 	
 	
-	
-	
+	if (options.fakeSocket)
+	{
+		
+
+		/* ************************************************** */
+		/*      special just to make it work behind nginx     */
+		/* ************************************************** */
+
+		io.configure(function() {  
+		  io.set("transports", ["xhr-polling"]);  
+		  io.set("polling duration", 10);  
+
+		  var path = require('path');  
+		  var HTTPPolling = require(path.join(  
+		    path.dirname(require.resolve('socket.io')),'lib', 'transports','http-polling')  
+		  );  
+		  var XHRPolling = require(path.join(  
+		    path.dirname(require.resolve('socket.io')),'lib','transports','xhr-polling')  
+		  );  
+
+		  XHRPolling.prototype.doWrite = function(data) {  
+		    HTTPPolling.prototype.doWrite.call(this);  
+
+		    var headers = {  
+		      'Content-Type': 'text/plain; charset=UTF-8',  
+		      'Content-Length': (data && Buffer.byteLength(data)) || 0  
+		    };  
+
+		    if (this.req.headers.origin) {  
+		      headers['Access-Control-Allow-Origin'] = '*';  
+		      if (this.req.headers.cookie) {  
+		        headers['Access-Control-Allow-Credentials'] = 'true';  
+		      }  
+		    }  
+
+		    this.response.writeHead(200, headers);  
+		    this.response.write(data);  
+		    this.log.debug(this._name + ' writing', data);  
+		  };  
+		});
+
+
+
+
+	}
 	
 	
 	
@@ -110,7 +153,10 @@ function init(server, options)
 					// var event = JSON.parse(message);
 					event.sessionId = client.id;
 
-					nunt.log("[RECEIVED (" + client.id + ")]:", event);
+					if (!options.silent)
+					{
+						nunt.log("[RECEIVED (" + client.id + ")]:", event);
+					}
 					
 					event.client = client;
 					
@@ -162,10 +208,10 @@ function init(server, options)
 				{
 					// console.log(event.sessionId);
 					// send the event to the corresponding client
-					if (event.dontLog !== false) 
+					if (event.dontLog !== false && !options.silent) 
 					{
 						//nunt.log("[SENT (" + event.sessionId + ")]:", event);
-						nunt.log("[SENT (" + event.sessionId + ")]:", event.name);
+						nunt.log("[SENT (" + event.sessionId + ")]:", event._name);
 					}
 					
 					try
@@ -208,10 +254,52 @@ function init(server, options)
 
 
 
-	
-	
-	
 
+	// this is used to map sessions with any key
+	var mappedSessions = {};
+	var hashSessions= {};
+	
+	// add a map object to nuntto map sessions
+	nunt.mapSession = function(sessionId, key)
+	{
+		if (!mappedSessions[key])
+		{
+			mappedSessions[key] = [sessionId];
+		}
+		else
+		{
+			mappedSessions[key].push(sessionId);
+		}
+		hashSessions[sessionId] = key;
+	}
+	
+	nunt.getMappedSessions = function(key)
+	{
+		return mappedSessions[key];
+	}
+	
+	nunt.removedSessionId = function(sessionId)
+	{
+		var list = mappedSessions[hashSessions[sessionId]];
+
+		if (list)
+		{
+			for(var i = 0, ii = list.length; i < ii; i++)
+			{
+				var entry = list[i];
+				if (entry == sessionId)
+				{
+					list.splice(i, 1);
+					return;
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
 
 	/* the classes and events */
 	nunt.controls.api = function()
@@ -286,7 +374,7 @@ function init(server, options)
 					// is the event exposed to the client?
 					if (tempEvent.expose)
 					{
-						var eventName = tempEvent.name;
+						var eventName = tempEvent._name;
 						var eventDefinition = "nunt." + eventName + " = function(";
 						
 						
@@ -304,7 +392,7 @@ function init(server, options)
 						
 						for (var prop in tempEvent)
 						{
-							if ((prop != "name") && (prop != "expose") && (prop != "sendToClient") && (prop != "request"))
+							if ((prop != "_name") && (prop != "expose") && (prop != "sendToClient") && (prop != "request"))
 							{
 								defineString += '"' + prop + '",';
 								hasProps = true;
@@ -400,34 +488,21 @@ function init(server, options)
 		var self = this;
 		
 		self.on(nunt.CONNECTION_REQUEST, connectionRequested);
-		self.on(nunt.SEND_COOKIES_FROM_CLIENT, gotCookiesFromClient);
 
 		// this is triggered when the client asks for a connection. if we dont get a request object, we return and ask for the cookie object.
 		function connectionRequested(event)
 		{
 
-			// nunt.log("Connection request");
-			// console.log(event.client.request.headers.cookie)
-			// if we dont have a request, we ask for the cookie object incase we need it			
-			if (!event.client.request)
+
+			if (options.connection && typeof options.connection == "function")
 			{
-				var askEvent = new nunt.ASK_FOR_COOKIES_FROM_CLIENT();
-				askEvent.sessionId = event.sessionId;
-				nunt.send(askEvent);
+				// do whatever we have to do in the connection callback
+				options.connection(event.client);
 			}
-			else
-			{
-				
-				if (options.connection && typeof options.connection == "function")
-				{
-					// do whatever we have to do in the connection callback
-					options.connection(event.client);
-				}
-				
-				var connectedEvent = new nunt.CONNECTED(true, event.sessionId, {});
-				self.sessionId = event.sessionId;
-				self.send(connectedEvent);
-			}
+			
+			var connectedEvent = new nunt.CONNECTED(true, event.sessionId, {});
+			self.sessionId = event.sessionId;
+			self.send(connectedEvent);
 
 		}
 		
@@ -479,8 +554,6 @@ function init(server, options)
 	nunt.defineEvent("CONNECTED",["info", "sessionId"],{sendToClient: true});
 	nunt.defineEvent("DISCONNECTED",["sessionId"], {});
 	nunt.defineEvent("events.server.api.BUILD_API_REQUEST",["scopeList", "fileName"], {});
-	nunt.defineEvent("ASK_FOR_COOKIES_FROM_CLIENT", [], {sendToClient: true});
-	nunt.defineEvent("SEND_COOKIES_FROM_CLIENT", ["cookies"], {});
 	
 
 }

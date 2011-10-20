@@ -2,7 +2,7 @@
 	
 	
 	/* default url config */ 
-	var base = {url: "localhost", autoConnect: true, port: 8080 };
+	var base = {url: "localhost", autoConnect: true};
 
 	var options = null;
 
@@ -39,20 +39,18 @@
 			}
 		};
 		
-		this.on(nunt.ASK_FOR_COOKIES_FROM_CLIENT, getCookieDataForSocket);
-		
-		// get cookie data and send it to the server. this is used if we are using a transport in socket io that doesnt give us access to the request object, and therefore the cookies
-		function getCookieDataForSocket(e)
-		{
-			var cookieEvent = new nunt.SEND_COOKIES_FROM_CLIENT(document.cookie);
-			that.send(cookieEvent);
-			//console.log(cookieEvent);
-		}
-		
 		function initConnection()
 		{
 		
 				var url = options.url;
+				
+				var resourceRe = /\/\/.+?(\/.+)$/gi;
+				var match = resourceRe.exec(url);
+				if (match && match.length > 1)
+				{
+					options.resource = match[1] + "/socket.io";
+					url = url.replace(match[1], "");
+				}
 				
 				delete options.url;
 				delete options.port;

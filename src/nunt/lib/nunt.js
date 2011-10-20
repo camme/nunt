@@ -23,7 +23,7 @@
 
 	
 	// internal name
-	nunt.name = "nunt";
+	nunt._name = "nunt";
 	
 	// generel function for singletons
 	var getInstance = function()
@@ -38,7 +38,7 @@
 	var getInstanceName = function(eventRef)
 	{
 		var tempRef = new eventRef();
-		var tempRefName = tempRef.name;
+		var tempRefName = tempRef._name;
 		return tempRefName;
 	};
 	
@@ -70,7 +70,7 @@
 	// Some system events
 	nunt.READY = function()
 	{
-		this.name = "nunt.READY";
+		this._name = "nunt.READY";
 	};
 	 
 	
@@ -244,28 +244,28 @@
 		
 		
 		// get the internal name
-		instance.name = getInternalName(name, type);
+		instance._name = getInternalName(name, type);
 		
 		
 		if (type)
 		{
-			instance.typeName = instance.name + "." + type;
+			instance.typeName = instance._name + "." + type;
 			
 			if (type == Types.CONTROL)
 			{
-				instance.model = getObject(instance.name, Types.MODEL);
+				instance.model = getObject(instance._name, Types.MODEL);
 			}
 			
 			if (type == Types.VIEW)
 			{
-				instance.control = getObject(instance.name, Types.CONTROL);
-				instance.model = getObject(instance.name, Types.MODEL);
+				instance.control = getObject(instance._name, Types.CONTROL);
+				instance.model = getObject(instance._name, Types.MODEL);
 			}
 			
 		}
 		else
 		{
-			instance.typeName = instance.name;
+			instance.typeName = instance._name;
 		}
 		
 		allObjectsMap[instance.typeName] = instance;
@@ -314,7 +314,7 @@
 			if (typeof event == 'string')
 			{
 				object = object || {};
-				object.name = event;
+				object._name = event;
 				event = object;
 			}
 			else
@@ -323,12 +323,12 @@
 			}
 		
 	
-			var eventName = typeof event == 'string' ? event : event.name;	
+			var eventName = typeof event == 'string' ? event : event._name;	
 		
 			if(nunt.showLog)
 			{
 				sender = sender ? sender : {name: "_root"};
-				console.info("nunt! EVENT (sent from '" + sender.name + "'): " + eventName + " - ", event);
+				console.info("nunt! EVENT (sent from '" + sender._name + "'): " + eventName + " - ", event);
 			}
 			
 			// get all listeners
@@ -337,9 +337,9 @@
 			// since some events are sent to the server, this doesnt have a purpose
 			if(!listeners && nunt.showLog)
 			{
-				if(event.name != "nunt.READY")
+				if(event._name != "nunt.READY")
 				{
-					//console.warn("nunt!: No listeners registred for event '" + event.name + "'");
+					//console.warn("nunt!: No listeners registred for event '" + event._name + "'");
 				}
 			}
 			
@@ -383,7 +383,7 @@
 		
 		ns[eventLastName] = function()
 		{
-			this.name = eventName;
+			this._name = eventName;
 			
 			// defaults
 			for(var prop in properties)
@@ -634,124 +634,128 @@
 	
 	//-only for nodejs-
 	
-	var fs = require('fs');
-	var path = require('path');
+	if (exports)
+	{
 	
-	// this methods are for loading all modules in paths
-	nunt.loadPaths = function(paths)
-	{
-		console.log("");
-		nunt.log("Loading external modules:");
-		for (var i = 0, ii = paths.length; i < ii; i++)
+		var fs = require('fs');
+		var path = require('path');
+	
+		// this methods are for loading all modules in paths
+		nunt.loadPaths = function(paths)
 		{
-			loadModule(paths[i]);
-		}
-		nunt.log("Loading external modules -> Done!\n");
-	};
-
-	function loadModule(startPath)
-	{
-		if (path.existsSync(startPath))
-		{
-			var files = fs.readdirSync(startPath);
-			for (var i = 0, ii = files.length; i < ii; i++)
+			console.log("");
+			nunt.log("Loading external modules:");
+			for (var i = 0, ii = paths.length; i < ii; i++)
 			{
-				var currentFile = startPath + "/" + files[i];
+				loadModule(paths[i]);
+			}
+			nunt.log("Loading external modules -> Done!\n");
+		};
 
-				var fileStat = fs.statSync(currentFile);
-				if (fileStat.isDirectory())
+		function loadModule(startPath)
+		{
+			if (path.existsSync(startPath))
+			{
+				var files = fs.readdirSync(startPath);
+				for (var i = 0, ii = files.length; i < ii; i++)
 				{
-					loadModule(currentFile);
-				}
-				else
-				{
-					if (currentFile.match(/\.js$/))
+					var currentFile = startPath + "/" + files[i];
+
+					var fileStat = fs.statSync(currentFile);
+					if (fileStat.isDirectory())
 					{
-						var moduleName = currentFile.substring(0, currentFile.length - 3);
-						require(currentFile);
-						nunt.log("\tLoaded module -> " +  moduleName);			
+						loadModule(currentFile);
+					}
+					else
+					{
+						if (currentFile.match(/\.js$/))
+						{
+							var moduleName = currentFile.substring(0, currentFile.length - 3);
+							require(currentFile);
+							nunt.log("\tLoaded module -> " +  moduleName);			
+						}
 					}
 				}
 			}
 		}
+	
+	
+		/* colors */
+	
+		// useful colors for bash
+		var colors = {
+			black: "\x1b[0;30m",
+			dkgray: "\x1b[1;30m",
+			brick: "\x1b[0;31m",	
+			red: "\x1b[1;31m",
+			green: "\x1b[0;32m",	
+			lime: "\x1b[1;32m",
+			brown: "\x1b[0;33m",	
+			yellow: "\x1b[1;33m",
+			navy: "\x1b[0;34m",	
+			blue: "\x1b[1;34m",
+			violet: "\x1b[0;35m",	
+			magenta: "\x1b[1;35m",
+			teal: "\x1b[0;36m",	
+			cyan: "\x1b[1;36m",
+			ltgray: "\x1b[0;37m",	
+			white: "\x1b[1;37m",
+			reset: "\x1b[0m"
+		};
+	
+	
+	
+		// this methos is for logging messages with a little more info
+		nunt.log = function(message, content)
+		{
+			var currentDate = new Date();
+			var dateString = currentDate.toString().match(/\d\d:\d\d:\d\d/)[0]; 
+
+			if (content == undefined)
+			{
+				console.log("[" + dateString + "]: " + message);
+			}
+			else
+			{
+				console.log("[" + dateString + "]: " + message + "\t" + JSON.stringify(content));
+			}
+
+		};
+	
+		nunt.error = function(message, content)
+		{
+			var currentDate = new Date();
+			var dateString = currentDate.toString().match(/\d\d:\d\d:\d\d/)[0]; 
+
+			if (content == undefined)
+			{
+				nunt.log(colors.red + "[" + dateString + "]: " + message + colors.reset);
+			}
+			else
+			{
+				nunt.log("[" + dateString + "]: " + message + "\t" + JSON.stringify(content) + colors.reset);
+			}
+
+		};
+	
+		// this methos is for logging messages with a little more info
+		nunt.log.color = function(color, message, content)
+		{
+			var currentDate = new Date();
+			var dateString = currentDate.toString().match(/\d\d:\d\d:\d\d/)[0]; 
+
+			if (content == undefined)
+			{
+				console.log("[" + dateString + "]: " + colors[color] + message + colors.reset);
+			}
+			else
+			{
+				console.log("[" + dateString + "]: " + colors[color] + message + "\t" + JSON.stringify(content) + colors.reset);
+			}
+
+		};
+	
 	}
-	
-	
-	/* colors */
-	
-	// useful colors for bash
-	var colors = {
-		black: "\x1b[0;30m",
-		dkgray: "\x1b[1;30m",
-		brick: "\x1b[0;31m",	
-		red: "\x1b[1;31m",
-		green: "\x1b[0;32m",	
-		lime: "\x1b[1;32m",
-		brown: "\x1b[0;33m",	
-		yellow: "\x1b[1;33m",
-		navy: "\x1b[0;34m",	
-		blue: "\x1b[1;34m",
-		violet: "\x1b[0;35m",	
-		magenta: "\x1b[1;35m",
-		teal: "\x1b[0;36m",	
-		cyan: "\x1b[1;36m",
-		ltgray: "\x1b[0;37m",	
-		white: "\x1b[1;37m",
-		reset: "\x1b[0m"
-	};
-	
-	
-	
-	// this methos is for logging messages with a little more info
-	nunt.log = function(message, content)
-	{
-		var currentDate = new Date();
-		var dateString = currentDate.toString().match(/\d\d:\d\d:\d\d/)[0]; 
-
-		if (content == undefined)
-		{
-			console.log("[" + dateString + "]: " + message);
-		}
-		else
-		{
-			console.log("[" + dateString + "]: " + message + "\t" + JSON.stringify(content));
-		}
-
-	};
-	
-	nunt.error = function(message, content)
-	{
-		var currentDate = new Date();
-		var dateString = currentDate.toString().match(/\d\d:\d\d:\d\d/)[0]; 
-
-		if (content == undefined)
-		{
-			nunt.log(colors.red + "[" + dateString + "]: " + message + colors.reset);
-		}
-		else
-		{
-			nunt.log("[" + dateString + "]: " + message + "\t" + JSON.stringify(content) + colors.reset);
-		}
-
-	};
-	
-	// this methos is for logging messages with a little more info
-	nunt.log.color = function(color, message, content)
-	{
-		var currentDate = new Date();
-		var dateString = currentDate.toString().match(/\d\d:\d\d:\d\d/)[0]; 
-
-		if (content == undefined)
-		{
-			console.log("[" + dateString + "]: " + colors[color] + message + colors.reset);
-		}
-		else
-		{
-			console.log("[" + dateString + "]: " + colors[color] + message + "\t" + JSON.stringify(content) + colors.reset);
-		}
-
-	};
-	
 	
 	//-end of only for nodejs-
 	
