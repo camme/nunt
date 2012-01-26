@@ -15,6 +15,8 @@
 	var isBrowser = (typeof global == "undefined") && (typeof require == "undefined"); // not the best test but ok now. global and require exists in node so we use it
 
 	var container = isBrowser ? window : global;
+	var registerAllObjectsHasRun = false; // in ie 7 sometimes the init methos are run twice so we use this ugly flag to fix that
+
 	var nunt = isBrowser ? {} : exports;
 	if (isBrowser)
 	{
@@ -449,6 +451,14 @@
 	
 	function registerAllObjects()
 	{
+	    
+	    // make sure we only run this once
+	    if (registerAllObjectsHasRun)
+	    {
+	        return;
+	    }
+	    registerAllObjectsHasRun = true;
+	    
 		var obj;
 		
 		for (obj in nunt.objects)

@@ -69,7 +69,7 @@ function init(server, options)
 	io = io.listen(server),
 	clientHashList = {};
 	
-	
+	nunt.log.color("magenta", "Socket server started with port " + options.port + ". Happy socketing!");
 	
 	
 	
@@ -158,7 +158,7 @@ function init(server, options)
 						nunt.log("[RECEIVED (" + client.id + ")]:", event);
 					}
 					
-					event.client = client;
+				//	event.client = client;
 					
 					nunt.send(event);
 
@@ -195,12 +195,18 @@ function init(server, options)
 	nunt.addGlobalListeners(
 		function(event, client)
 		{
-		
-			if (event.sendToClient)
+			
+			if (event.sendToClient || event.client)
 			{
-	
+				
+				if (event.client && typeof event.client != 'boolean')
+				{
+					throw "the event " + event._name + " had the event.client attribute not set as a boolean. this property is reserved for setting if the event should be sent to the client as well."
+				}
+				
 				// clean internal props
 				delete event.sendToClient;
+				delete event.client;
 				delete event.expose;
 				
 				// if an event is meant to be sent to a client but has a session, we only send it to the client based on the sessionid, otherwise we broadcast to all
@@ -234,7 +240,6 @@ function init(server, options)
 				}
 				else
 				{
-					
 					// send the event to all clients
 					try
 					{
