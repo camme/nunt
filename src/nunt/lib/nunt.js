@@ -41,7 +41,7 @@
     var getInstanceName = function(eventRef)
     {
         var tempRef = new eventRef();
-        var tempRefName = tempRef.name;
+        var tempRefName = tempRef._name;
         return tempRefName;
     };
     
@@ -76,7 +76,7 @@
     // Some system events
     nunt.READY = function()
     {
-        this.name = "nunt.READY";
+        this._name = "nunt.READY";
     };
      
     
@@ -234,24 +234,25 @@
         // we create a new function inside the class trough some string manipulation, the we replace the original class with our new class with eval
         if (nunt.unitTestMode)
         {
+            instance = {};
 
-            console.log("---> Exposing " + name + " in " + type);
-            
-            // get an instance that exposes the provate funcions
-            instance = nunt.getExposedInstance(classRef);
-            
-            //make sure it has the same functions as the rest
-            //instance.send = sendForObjects;
-            instance.send = classRef.prototype.emit = classRef.prototype.fire = sendForObjects;
-            
-            instance.on = classRef.prototype.bind = classRef.prototype.addListener = onForObjects;
-            
-            instance.off = classRef.prototype.unbind = classRef.prototype.removeListener = offForObjects;
-            
-            classRef.getInstance = function()
-            {
-                return instance;
-            }
+            // create a = function that returns a new exposed instance of the object
+            classRef.getInstance =(function(classRef, name){
+                return function()
+                {
+                    
+                    // get an instance that exposes the provate funcions
+                    instance = nunt.getExposedInstance(classRef);
+
+                    //make sure it has the same functions as the rest
+                    instance.send = classRef.prototype.emit = classRef.prototype.fire = sendForObjects;
+                    instance.on = classRef.prototype.bind = classRef.prototype.addListener = onForObjects;
+                    instance.off = classRef.prototype.unbind = classRef.prototype.removeListener = offForObjects;
+                
+                    return instance;
+                    
+                };
+            })(classRef, name);
         }
         else
         {
@@ -334,12 +335,13 @@
     {
         
         // only send events if we arent in test mode
-        if (!nunt.unitTestMode)
+        if (!nunt.unitTestMode || event._name == "nunt.READY")
         {
+    
             if (typeof event == 'string')
             {
                 object = object || {};
-                object.name = event;
+                object._name = event;
                 event = object;
             }
             else
@@ -348,7 +350,7 @@
             }
         
     
-            var eventName = typeof event == 'string' ? event : event.name;    
+            var eventName = typeof event == 'string' ? event : event._name;    
         
             if(nunt.showLog)
             {
@@ -362,7 +364,7 @@
             // since some events are sent to the server, this doesnt have a purpose
             if(!listeners && nunt.showLog)
             {
-                if(event.name != "nunt.READY")
+                if(event._name != "nunt.READY")
                 {
                     //console.warn("nunt!: No listeners registred for event '" + event.name + "'");
                 }
@@ -533,7 +535,20 @@
         // everything is ready, lets send the signal to the system
         nunt.send(new nunt.READY(), nunt);
         
+    }
+    
+    // resets the objects in nunt. used mostly for testing
+    nunt.reset = function()
+    {
+        registerAllObjectsHasRun = false;
         
+        referenceToEventListeners = {};
+        objectsRegistred = false;
+        allObjectsMap = {};
+        globalListeners = [];
+        dispatchedEventListForTest = [];
+        
+        registerAllObjects();
     }
     
     /*
@@ -679,8 +694,12 @@
     if (isBrowser)
     {
         // this is if want to register it manually
+        if (!nunt.unitTestMode)
+        {
+            init();
+        }
         nunt.init = registerAllObjects;
-        init();
+        
     }
     else
     {
