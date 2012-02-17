@@ -84,10 +84,15 @@
 				nunt.addGlobalListener(
 					function(event)
 					{					
-						if (event.request)
+						if (event.request || event.server)
 						{
+							if (event.server && typeof event.server != 'boolean')
+							{
+								throw "the event " + event._name + " had the event.server attribute not set as a boolean. this property is reserved for setting if the event should be sent to the server as well."
+							}
 							// clean internal props before sending;
 							delete event.request;
+							delete event.server;
 							
 							//console.log("SEND!", event)
 						

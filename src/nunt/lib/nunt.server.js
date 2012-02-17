@@ -13,10 +13,13 @@ function init(server, options)
 		handlers: [],
 		socketioLogLevel: 0,
 		silent: false,
-		fakeSocket: false
+		fakeSocket: false,
+		cache: true
 	};
 	
 	var options = nunt.extend(baseOptions, options);
+	
+	var cacheData = {};
 	
 	
 	var log = global.log;
@@ -69,7 +72,7 @@ function init(server, options)
 	io = io.listen(server),
 	clientHashList = {};
 	
-	
+	nunt.log.color("magenta", "Socket server started with port " + options.port + ". Happy socketing!");
 	
 	
 	
@@ -158,7 +161,7 @@ function init(server, options)
 						nunt.log("[RECEIVED (" + client.id + ")]:", event);
 					}
 					
-					event.client = client;
+				//	event.client = client;
 					
 					nunt.send(event);
 
@@ -179,6 +182,8 @@ function init(server, options)
 					disconnectEvent.sessionId = client.sessionId;
 				
 					nunt.send(disconnectEvent);
+					
+					delete cacheData[client.sessionId];
 				
 					if (options.disconnect && typeof options.disconnect == "function")
 					{
@@ -195,13 +200,42 @@ function init(server, options)
 	nunt.addGlobalListeners(
 		function(event, client)
 		{
-		
-			if (event.sendToClient)
+			
+			
+			
+			
+			
+			if (event.sendToClient || event.client)
 			{
-	
+				
+				if (event.client && typeof event.client != 'boolean')
+				{
+					throw "the event " + event._name + " had the event.client attribute not set as a boolean. this property is reserved for setting if the event should be sent to the client as well."
+				}
+				
 				// clean internal props
 				delete event.sendToClient;
+				delete event.client;
 				delete event.expose;
+				
+				
+				// first we check if the cache options is enabled and no flag for not using the cache is set
+    			if (options.cache && event.cache !== false && event.sessionId)
+    			{
+    			    // we serialize the data so that we can save it in the cache or just compare it to the cache in case we dont need to send it again
+    			    if (cacheData[event.sessionId] && cacheData[event.sessionId][event._name])
+    			    {
+    			        var stringifiedData = JSON.stringify(event);
+    			        if (cacheData[event.sessionId][event._name] == stringifiedData)
+    			        {
+    			            //console.log("ALREADY SENT");
+    			            //console.log(event.sessionId + "-" + event._name);
+    			            //console.log(cacheData[event.sessionId][event._name]);
+    			            //console.log(stringifiedData);
+    			            return;
+    			        }
+    			    }
+    			}
 				
 				// if an event is meant to be sent to a client but has a session, we only send it to the client based on the sessionid, otherwise we broadcast to all
 				if (event.sessionId)
@@ -219,7 +253,20 @@ function init(server, options)
 			
 						if (clientHashList[event.sessionId])
 						{
+						    
+						    
+						    
+
 							clientHashList[event.sessionId].emit('nunt', event);
+							
+							// ok so if we have to use the cache, we make sure to save the lastes message
+							if (options.cache && event.cache !== false)
+                			{
+							    var stringifiedData = stringifiedData || JSON.stringify(event);
+							    cacheData[event.sessionId] = cacheData[event.sessionId] || {};
+							    cacheData[event.sessionId][event._name] = stringifiedData;
+							    //console.log("SAVE ", event.sessionId, event._name)
+							}
 						}
 						else
 						{
@@ -234,13 +281,34 @@ function init(server, options)
 				}
 				else
 				{
-					
 					// send the event to all clients
 					try
 					{
+					    var stringifiedData = JSON.stringify(event);
+					    
 						for (var sessionId in clientHashList)
 						{
+						    
+						    // check if alreay sent
+						    // we serialize the data so that we can save it in the cache or just compare it to the cache in case we dont need to send it again
+            			    if (cacheData[sessionId] && cacheData[sessionId][event._name])
+            			    {
+            			        if (cacheData[sessionId][event._name] == stringifiedData)
+            			        {
+            			            return;
+            			        }
+            			    }
+
+                            // send the event
 							clientHashList[sessionId].emit('nunt', event);
+							
+							// ok so if we have to use the cache, we make sure to save the lastes message
+							if (options.cache && event.cache !== false)
+                			{
+							    cacheData[sessionId] = cacheData[sessionId] || {};
+							    cacheData[sessionId][event._name] = stringifiedData;
+							}
+							
 						}
 					}
 					catch(err2)
@@ -323,7 +391,7 @@ function init(server, options)
 			eventList += "\n";
 
 			var events = "";
-
+			
 			for (var i = 0, ii = event.scopeList.length; i < ii; i++)
 			{
 				events += buildApiRec(event.scopeList[i]);
