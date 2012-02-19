@@ -1,5 +1,6 @@
-if (document.getElementById("usingNuntMarker"))
-{
-    console.log("yes");
-    chrome.extension.sendRequest({}, function(response) {});
-}
+// triggered when content is reloaded
+chrome.extension.sendRequest(
+    {
+        command: "reload"
+    }, function(response) {}
+);

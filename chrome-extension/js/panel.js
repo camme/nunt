@@ -20,7 +20,7 @@ function init(panel)
         "typeof window.nunt",
          function(result, isException) 
          {
-           if (isException)
+           if (isException && result != "undefined")
            {
             nuntExists = false;
             }
@@ -30,17 +30,36 @@ function init(panel)
            }
          }
     );
-    
-    chrome.experimental.devtools.inspectedWindow.eval(
-        "window",
-         function(result, isException) 
-         {
-           console.log(result, isException)
-         }
-    );
-    
+
     panel.onShown.addListener(show);
 }
+
+function gotMessage(request, sender, sendResponse) 
+{
+    console.log("got command", request.command)
+    if (request.command == 'reload')
+    {
+    
+    }
+  
+
+  
+}
+
+chrome.extension.onRequest.addListener(gotMessage);
+
+
+
+function refresh(resource)
+{
+    if (resource.type == "document")
+    {
+        nuntPanel.addScripts();
+        nuntPanel.displayLists();
+    }
+}
+
+chrome.experimental.devtools.inspectedWindow.onResourceAdded.addListener(refresh);
 
 
 function show(window) 
@@ -48,16 +67,21 @@ function show(window)
     if (!nuntPanel)
     {
         nuntPanel = new NuntPanel(window);
-
         //setInterval(nuntPanel.displayLists, 1000);
     }
     
     nuntPanel.displayLists();
+
 }
 
 function NuntPanel(window)
 {
     var window = window;
+    //
+    console.log("hello")
+    console.log(window.jQuery == null, window.$ == null);
+    var $ = window.jQuery;
+    console.log("hello 2", $.toString())
     var document = window.document;
     var eventListElement = document.getElementById("eventsList");
     var modelsListElement = document.getElementById("modelsList");
@@ -70,11 +94,11 @@ function NuntPanel(window)
     this.displayLists = function()
     {
     
-        runScript("window.nunt.getRegistredEvents()", function(objects) {
+        runScript("window.nunt._getRegistredEventsAsStringList()", function(objects) {
            displayObjectList(objects, eventListElement, "event: ")
         });
     
-        runScript("window.nunt.models", function(objects) {
+        /*runScript("window.nunt.models", function(objects) {
            displayObjectList(objects, modelsListElement, "models.")
         });
     
@@ -88,9 +112,23 @@ function NuntPanel(window)
     
         runScript("window.nunt.objects", function(objects) {
            displayObjectList(objects, objectsListElement, "objects.")
-        });
+        });*/
     
     }
+    
+    this.addScripts = function()
+    {
+    
+        // add script to get list of events
+        runScript("window.nunt._getRegistredEventsAsStringList = function(){ var list = this.getRegistredEvents(); var stringList = {}; for(var eventName in list) {stringList[eventName] = 1;}; return stringList };");
+        
+        runScript("window.nunt._getCallbackFromEvent = function(event){ var eventItem = this.getRegistredEvents()[event]; var callback = eventItem[0].handler; return calback; };");
+        
+    
+    }
+    
+    this.addScripts();
+    
     
     function displayObjectList(objects, container, prefix)
     {
@@ -99,10 +137,27 @@ function NuntPanel(window)
 
         for(obj in objects)
         {
-            var element = document.createElement("li");
-            element.innerText = prefix + obj;
-            container.appendChild(element);
+          
+            var element = $("<li id='" + obj + "'>" + prefix + obj + "</li>");
+            element.click(eventClick);
+            console.log(obj)
+            $(container).append(element);
+            //var element = document.createElement("li");
+            //element.innerText = prefix + obj;
+            //element
+            //container.appendChild(element);
         }
+    }
+    
+    function eventClick()
+    {
+        var event = $(this).attr("id");
+        console.log(event + " clicked");
+        
+        runScript("window.nunt._getCallbackFromEvent('" + event + "')", function(result) {
+            
+           console.log(result);
+        });
     }
     
 }

@@ -26,7 +26,7 @@
 
     
     // internal name
-    nunt.name = "nunt";
+    nunt._name = "nunt";
     
     // generel function for singletons
     var getInstance = function()
@@ -70,6 +70,7 @@
     // this hodls a history of all events that are sent but is only used for testing
     var dispatchedEventListForTest = [];
     
+   
     // are e in test mode?
     nunt.unitTestMode = false;
     
@@ -77,6 +78,7 @@
     nunt.READY = function()
     {
         this._name = "nunt.READY";
+        this.local = true;
     };
      
     nunt.getRegistredEvents = function()
@@ -84,9 +86,16 @@
         return referenceToEventListeners;
     }
     
-    var sendForObjects = function(event)
+    var sendForObjects = function(event, data)
     {
-        nunt.send(event, this);
+        if (typeof event == "string")
+        {
+            nunt.send(event, data, this); 
+        }
+        else
+        {
+            nunt.send(event, this);
+        }
     };
     
     var onForObjects = function(event, callback)
@@ -110,7 +119,7 @@
             listeningObject = arguments.callee.caller;
         }
         
-        var name = typeof event == 'string' ? event: getInstanceName(event);
+        var name = typeof event == 'string' ? event : getInstanceName(event);
         if (!referenceToEventListeners[name])
         {
             referenceToEventListeners[name] = [];
@@ -344,12 +353,12 @@
         
         
         // get the internal name
-        instance.name = getInternalName(name, type);
+        instance._name = instance._name || getInternalName(name, type);
         
         
         if (type)
         {
-            instance.typeName = instance.name + "." + type;
+            instance._typeName = instance.name + "." + type;
             
             if (type == Types.CONTROL)
             {
@@ -365,14 +374,14 @@
         }
         else
         {
-            instance.typeName = instance.name;
+            instance._typeName = instance._name;
         }
         
-        allObjectsMap[instance.typeName] = instance;
+        allObjectsMap[instance._typeName] = instance;
 
         if (nunt.showLog)
         {
-            console.log("nunt! Register ", instance.typeName);
+            console.log("nunt! Register ", instance._typeName);
         }
         
         // get the predefined listeners
@@ -407,10 +416,6 @@
     // method for sending events
     nunt.send = function(event, object, sender)
     {
-        
-      
-        
-
         if (typeof event == 'string')
         {
             object = object || {};
@@ -421,14 +426,13 @@
         {
             sender = object;
         }
-    
 
         var eventName = typeof event == 'string' ? event : event._name;    
     
         if(nunt.showLog)
         {
             sender = sender ? sender : {name: "_root"};
-            console.info("nunt! EVENT (sent from '" + sender.name + "'): " + eventName + " - ", event);
+            console.info("nunt! EVENT (sent from '" + sender._name + "'): " + eventName + " - ", event);
         }
         
         // get all listeners

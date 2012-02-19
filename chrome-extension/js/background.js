@@ -5,25 +5,29 @@ const tab_log = function(json_args) {
   console[args[0]].apply(console, Array.prototype.slice.call(args, 1));
 }
 
-chrome.extension.onRequest.addListener(function(request, sender) {
-  if (request.command !== 'sendToConsole')
-  {
-      chrome.pageAction.setPopup({
-          tabId: sender.tab.id,
-          popup: "html/debugger.html"
-      });
-      chrome.pageAction.show(sender.tab.id);
-      //sendResponse({});
-  }
-  else{
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+
+    if (request.command == 'sendToConsole')
+    {
+          /*chrome.pageAction.setPopup({
+              tabId: sender.tab.id,
+              popup: "html/debugger.html"
+          });
+          chrome.pageAction.show(sender.tab.id);
+          //sendResponse({});
+      }
+      else{*/
     
-  chrome.tabs.executeScript(request.tabId, {
-      code: "("+ tab_log + ")('" + request.args + "');",
-  });
-  }
+        chrome.tabs.executeScript(request.tabId, {
+            code: "("+ tab_log + ")('" + request.args + "');",
+        });
+    }
+  
+
+  
 });
 
-
+/*
 function clicked(tab)
 {
     chrome.tabs.executeScript(null, {code: "alert(window.nunt)"});
@@ -32,7 +36,11 @@ function clicked(tab)
 
 chrome.pageAction.onClicked.addListener(clicked);
 
+chrome.extension.sendRequest({
+    command: "fromBackground"
+}, function(response) { 
+    console.log("RESPONSE", response);
+});
 
 
-
-
+*/
