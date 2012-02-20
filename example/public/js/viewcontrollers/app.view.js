@@ -2,7 +2,6 @@
     
     nunt.views.app = function()
     {
-        console.log("PRE YES")
         var that = this;
         
         this.on(nunt.CONNECTED, connected);
@@ -38,7 +37,6 @@
 
 $(document).ready(function(){
     
-    console.log("YES")
     nunt.on("foo.jquery.update", fooUpdate);
     
     function fooUpdate()

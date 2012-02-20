@@ -50,13 +50,65 @@ chrome.extension.onRequest.addListener(gotMessage);
 
 
 
+var nuntLoaded = false;
+var eventSrcFiles = {};
+
 function refresh(resource)
 {
+    
     if (resource.type == "document")
     {
-        nuntPanel.addScripts();
-        nuntPanel.displayLists();
+        runScript("(window.nunt != null);", function(result){ 
+            if (result)
+            {
+                nuntLoaded = true;
+                nuntPanel.addScripts();
+                nuntPanel.displayLists();
+            }
+            else
+            {
+                nuntLoaded = false;
+                eventSrcFiles = {};
+            }
+        });
     }
+    else
+    {
+        if (resource.type == "script")
+        {
+            resource.getContent(function(content){
+                analyzeCode(content, resource.url);
+            });
+            
+        }
+    }
+}
+
+function analyzeCode(code, name)
+{
+    var matches = code.match(/\.(on|bind)\(.+("|'|)/igm);
+    if (matches.length > 0)
+    {
+        for(var i = 0, ii = matches.length; i < ii; i++)
+        {
+            var event = matches[i];
+            if (event != "")
+            {
+                
+                var trimmed = event.replace(/\.(on|bind)/gi, "").replace(/["';\(]/gi, "").replace(/,.+\)/gi, "");
+                if (!eventSrcFiles[trimmed])
+                {
+                    eventSrcFiles[trimmed] = [];
+                }
+                eventSrcFiles[trimmed].push({
+                    file: name,
+                    content: content
+                });
+
+            }
+        }
+    }
+    
 }
 
 chrome.experimental.devtools.inspectedWindow.onResourceAdded.addListener(refresh);
@@ -77,17 +129,14 @@ function show(window)
 function NuntPanel(window)
 {
     var window = window;
-    //
-    console.log("hello")
-    console.log(window.jQuery == null, window.$ == null);
     var $ = window.jQuery;
-    console.log("hello 2", $.toString())
     var document = window.document;
     var eventListElement = document.getElementById("eventsList");
-    var modelsListElement = document.getElementById("modelsList");
+    /*var modelsListElement = document.getElementById("modelsList");
     var controlsListElement = document.getElementById("controlsList");
     var viewsListElement = document.getElementById("viewsList");
-    var objectsListElement = document.getElementById("objectsList");
+    var objectsListElement = document.getElementById("objectsList");*/
+    
     
     
     
@@ -95,7 +144,7 @@ function NuntPanel(window)
     {
     
         runScript("window.nunt._getRegistredEventsAsStringList()", function(objects) {
-           displayObjectList(objects, eventListElement, "event: ")
+           displayObjectList(objects, eventListElement, "")
         });
     
         /*runScript("window.nunt.models", function(objects) {
@@ -119,11 +168,48 @@ function NuntPanel(window)
     this.addScripts = function()
     {
     
+    
+        
+                
         // add script to get list of events
         runScript("window.nunt._getRegistredEventsAsStringList = function(){ var list = this.getRegistredEvents(); var stringList = {}; for(var eventName in list) {stringList[eventName] = 1;}; return stringList };");
+
+        var _getCallbackFromEvent = function(event)
+        {
+            var eventItems = this.getRegistredEvents()[event]; 
+            var findNameRe = /function (\w+\((.|)+\))/;
+            var handlerNameList = [];
+            for(var i = 0, ii = eventItems.length; i < ii; i++)
+            {
+    
+                var eventItem = eventItems[0];
+                var functionString = eventItem.handler.toString();
         
-        runScript("window.nunt._getCallbackFromEvent = function(event){ var eventItem = this.getRegistredEvents()[event]; var callback = eventItem[0].handler; return calback; };");
+                // handler
+                var handlerNameMatches = findNameRe.exec(functionString);
+                var handlerName = "";
+                if (handlerNameMatches.length > 0)
+                {
+                    handlerName = handlerNameMatches[1];
+                }
         
+                handlerNameList.push({
+                    functionName: handlerName,
+                    functionString: functionString
+                });
+        
+                // listeningObject
+        
+                //console.log(eventItem)
+    
+            }
+            return handlerNameList;
+        }
+
+        //console.log("window.nunt._getCallbackFromEvent = " + _getCallbackFromEvent.toString())
+        runScript("window.nunt._getCallbackFromEvent = " + _getCallbackFromEvent.toString());
+        
+   
     
     }
     
@@ -140,23 +226,27 @@ function NuntPanel(window)
           
             var element = $("<li id='" + obj + "'>" + prefix + obj + "</li>");
             element.click(eventClick);
-            console.log(obj)
             $(container).append(element);
-            //var element = document.createElement("li");
-            //element.innerText = prefix + obj;
-            //element
-            //container.appendChild(element);
         }
     }
     
     function eventClick()
     {
+        //console.log("eventSrcFiles", eventSrcFiles)
         var event = $(this).attr("id");
-        console.log(event + " clicked");
         
         runScript("window.nunt._getCallbackFromEvent('" + event + "')", function(result) {
             
-           console.log(result);
+            $("#file .content").html();
+            $("#event .content").html(event);
+            $("#callbackName .content").html(result[0].functionName);
+            $("#callbackCode .content").html(result[0].functionString.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">"));
+            
+            console.log(eventSrcFiles, event)
+            
+            //console.log('event:', event);
+            //console.log('callbacks:', result);
+            //console.log('file:', eventSrcFiles[event].file);
         });
     }
     

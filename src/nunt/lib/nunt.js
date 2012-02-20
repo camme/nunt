@@ -353,8 +353,8 @@
         
         
         // get the internal name
-        instance._name = instance._name || getInternalName(name, type);
         
+        instance._name = instance._name || getInternalName(name, type);
         
         if (type)
         {

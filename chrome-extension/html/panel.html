@@ -9,21 +9,30 @@
 	<meta name="author" content="Camilo Tapia">
 	
 	<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../css/style.css">
 
 </head>
 <body>
-    <h1>Nunt</h1>
-    <div><a id="refreshEventList">refresh event list</a></div>
-    <div id="objects">
-        <h3>Object list</h3>
-        <ul id="modelsList"></ul>
-        <ul id="controlsList"></ul>
-        <ul id="viewsList"></ul>
-        <ul id="objectsList"></ul>
-    </div>
-    <div id="events">
-        <h3>Event list</h3>
-        <ul id="eventsList"></ul>
+    <div id="wrapper">
+        
+        <div id="events">
+            <div class="top">                
+                <h3>Event list</h3>
+<!--                <div><a id="refreshEventList">Refresh</a></div> -->
+            </div>
+            <ul id="eventsList"></ul>
+        </div>
+    
+        <div id="eventInfo">
+            <div class="top">
+                <h3>Event info</h3>
+            </div>
+            <div id="event"><span class="title">Event:</span><span class="content"></span></div>
+            <div id="file"><span class="title">File:</span><span class="content"></span></div>
+            <div id="callbackName"><span class="title">Callback:</span><span class="content"></span></div>
+            <div id="callbackCode"><span class="title">Code:</span><pre class="content"></pre></div>
+        </div>
+        
     </div>
 </body>
 </html>
