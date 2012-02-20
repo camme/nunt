@@ -10,6 +10,36 @@
 	
 	<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="../css/style.css">
+	
+	
+    <!-- Include required JS files -->
+    <script type="text/javascript" src="../highlight/shCore.js"></script>
+
+    <!--
+        At least one brush, here we choose JS. You need to include a brush for every 
+        language you want to highlight
+    -->
+    <script type="text/javascript" src="../highlight/shBrushJScript.js"></script>
+
+    <!-- Include *at least* the core style and default theme -->
+    <link href="../highlight/shCore.css" rel="stylesheet" type="text/css" />
+    <link href="../highlight/shThemeDefault.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" charset="utf-8">
+        
+        $(document).ready(function(){
+        $("h3").click(function(){
+            
+            $("#callbackCode > div, #callbackCode pre").remove();
+            var pre = $('<pre class="brush: js">');
+            $("#callbackCode").append(pre);
+            pre.html("function tjena(){var data = 1};");
+            
+            window.SyntaxHighlighter.all();
+        })
+        });
+        
+    </script>
 
 </head>
 <body>
@@ -27,12 +57,27 @@
             <div class="top">
                 <h3>Event info</h3>
             </div>
-            <div id="event"><span class="title">Event:</span><span class="content"></span></div>
-            <div id="file"><span class="title">File:</span><span class="content"></span></div>
-            <div id="callbackName"><span class="title">Callback:</span><span class="content"></span></div>
-            <div id="callbackCode"><span class="title">Code:</span><pre class="content"></pre></div>
+            <div class="innerContent disabled">
+                
+                <div id="callbacks">
+                    <span class="title">Callbacks:</span>
+                    <select id="callbackList"></select>
+                </div>
+                <div id="file"><span class="title">File:</span><span class="content"></span></div>
+                <div id="callbackCode">
+                    <span class="title">Code:</span>
+                    <div id="codeInner">
+                        <pre class="brush: js"></pre>
+                    </div>
+                </div>
+            
+            </div>
         </div>
         
     </div>
 </body>
+
+<script type="text/javascript" charset="utf-8">
+    window.SyntaxHighlighter.all();
+</script>
 </html>

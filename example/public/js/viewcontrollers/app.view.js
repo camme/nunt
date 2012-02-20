@@ -37,11 +37,11 @@
 
 $(document).ready(function(){
     
-    nunt.on("foo.jquery.update", fooUpdate);
+    nunt.on("foo.update", datamaskin);
     
-    function fooUpdate()
+    function datamaskin()
     {
-        console.log("FOOO")
+        console.log("FOOO Datamaskin");
     }
     
 });

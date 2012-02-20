@@ -69,6 +69,7 @@ function refresh(resource)
             {
                 nuntLoaded = false;
                 eventSrcFiles = {};
+                nuntPanel.reset();
             }
         });
     }
@@ -130,16 +131,10 @@ function NuntPanel(window)
 {
     var window = window;
     var $ = window.jQuery;
+    var sh = window.SyntaxHighlighter;
     var document = window.document;
-    var eventListElement = document.getElementById("eventsList");
-    /*var modelsListElement = document.getElementById("modelsList");
-    var controlsListElement = document.getElementById("controlsList");
-    var viewsListElement = document.getElementById("viewsList");
-    var objectsListElement = document.getElementById("objectsList");*/
-    
-    
-    
-    
+    var eventListElement = $("#eventsList");
+
     this.displayLists = function()
     {
     
@@ -147,30 +142,11 @@ function NuntPanel(window)
            displayObjectList(objects, eventListElement, "")
         });
     
-        /*runScript("window.nunt.models", function(objects) {
-           displayObjectList(objects, modelsListElement, "models.")
-        });
-    
-        runScript("window.nunt.controls", function(objects) {
-           displayObjectList(objects, controlsListElement, "controls.")
-        });
-    
-        runScript("window.nunt.views", function(objects) {
-           displayObjectList(objects, viewsListElement, "views.")
-        });
-    
-        runScript("window.nunt.objects", function(objects) {
-           displayObjectList(objects, objectsListElement, "objects.")
-        });*/
-    
     }
     
     this.addScripts = function()
     {
-    
-    
-        
-                
+
         // add script to get list of events
         runScript("window.nunt._getRegistredEventsAsStringList = function(){ var list = this.getRegistredEvents(); var stringList = {}; for(var eventName in list) {stringList[eventName] = 1;}; return stringList };");
 
@@ -182,7 +158,7 @@ function NuntPanel(window)
             for(var i = 0, ii = eventItems.length; i < ii; i++)
             {
     
-                var eventItem = eventItems[0];
+                var eventItem = eventItems[i];
                 var functionString = eventItem.handler.toString();
         
                 // handler
@@ -197,19 +173,12 @@ function NuntPanel(window)
                     functionName: handlerName,
                     functionString: functionString
                 });
-        
-                // listeningObject
-        
-                //console.log(eventItem)
     
             }
             return handlerNameList;
         }
 
-        //console.log("window.nunt._getCallbackFromEvent = " + _getCallbackFromEvent.toString())
         runScript("window.nunt._getCallbackFromEvent = " + _getCallbackFromEvent.toString());
-        
-   
     
     }
     
@@ -219,35 +188,68 @@ function NuntPanel(window)
     function displayObjectList(objects, container, prefix)
     {
         // empty it
-        container.innerHTML = "";
+        container.html("");
 
         for(obj in objects)
         {
-          
             var element = $("<li id='" + obj + "'>" + prefix + obj + "</li>");
             element.click(eventClick);
-            $(container).append(element);
+            container.append(element);
         }
     }
     
+    this.reset = function()
+    {
+        $("#eventInfo .innerContent").addClass("disabled");
+        $("#codeInner > div, #codeInner pre").remove();
+        $("#callbackList").empty();
+        container.html("");
+    }
+    
+    
+    var callbackList = null;
     function eventClick()
     {
-        //console.log("eventSrcFiles", eventSrcFiles)
+        
         var event = $(this).attr("id");
         
         runScript("window.nunt._getCallbackFromEvent('" + event + "')", function(result) {
             
-            $("#file .content").html();
-            $("#event .content").html(event);
-            $("#callbackName .content").html(result[0].functionName);
-            $("#callbackCode .content").html(result[0].functionString.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">"));
+            callbackList = result;
             
-            console.log(eventSrcFiles, event)
+            $("#eventInfo .innerContent").removeClass("disabled");
             
-            //console.log('event:', event);
-            //console.log('callbacks:', result);
-            //console.log('file:', eventSrcFiles[event].file);
+            var listDom = $("#callbackList").empty();
+            
+            for(var i = 0, ii = result.length; i < ii; i++)
+            {
+                listDom.append("<option value='" + i + "'>" + result[i].functionName + "</option>")
+            }
+    
+            if (result.length > 0)
+            {
+                showCallback(result[0]);
+            }
+            
+            listDom.unbind("change").bind("change", function(){
+                
+                var index = parseInt($("#callbackList").val());
+                showCallback(callbackList[index]);
+            });
+            
         });
+    }
+    
+    function showCallback(callbackItem)
+    {
+        //$("#callbackName .content").html(result[0].functionName);
+        $("#codeInner > div, #codeInner pre").remove();
+        var pre = $('<pre class="brush: js">');
+        $("#codeInner").append(pre);
+        pre.html(callbackItem.functionString.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">"));
+        sh.highlight();
+        
+        $("#file .content").html();
     }
     
 }

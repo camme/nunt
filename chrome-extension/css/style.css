@@ -1,13 +1,34 @@
+html
+{
+    height: 100%;
+}
+
 body
 {
-    font-family: arial, helvetica;
-    font-size: 12px;
+    font-family: verdana, arial, helvetica;
+    font-family: Lucida Grande, sans-serif;
+    font-size: 11px;
+    padding: 0px;
+    margin: 0px;
+    height: 100%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+h3
+{
+    padding: 0;
+    margin: 0px;
+    padding: 3px 5px;
+    border-bottom: 1px solid #bbb;
 }
 
 #wrapper
 {
     display: -webkit-box;
     -webkit-box-orient: horizontal;
+    height: 100%;
+    -webkit-box-flex: 1;
 }
 
 #wrapper > div
@@ -29,17 +50,23 @@ body
 
 #events
 {
-    max-width: 400px;
-    padding: 10px;
-    margin-right: 20px;
+    max-width: 300px;
+    padding: 0px;
+    margin-right: 0px;
+    height: 100%;
+    border-right: 1px solid #bbb;
 }
 
 #eventInfo
 {
     max-width: 400px;
-    padding: 10px;
-    margin-right: 20px;
+    padding: 0px;
+    margin-right: 0px;
+    border-right: 1px solid #bbb;
+    height: 100%;
 }
+
+
 
 #eventInfo .title
 {
@@ -77,9 +104,50 @@ body
     background-color: #ccc;
 }
 
-#callbackCode .content
+#codeInner
 {
+    margin-top: 0px;
     display: block;
+    padding: 0px 0;
+    border-bottom: #eee dotted 1px;
 }
 
 
+.innerContent
+{
+    padding: 0px;
+}
+
+.disabled
+{
+    opacity: .3;
+}
+
+#callbacks
+{
+    padding: 3px 5px 0px;
+}
+
+#file, #title
+{
+    padding: 3px 5px;
+}
+
+#file
+{
+    border-top: #eee dotted 1px;
+    margin-top: 4px;
+}
+
+#callbackCode .title
+{
+    padding: 3px 5px 0;
+}
+
+
+#callbackCode
+{
+    border-top: #eee dotted 1px;
+    padding-top: 4px;
+    margin-top: 2px;
+}
