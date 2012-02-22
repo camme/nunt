@@ -1,3 +1,5 @@
+var dev = chrome.experimental.devtools;
+
 // make sure well tell the world where the dev tool tab id is
 // TODO: Is this really used?
 chrome.extension.sendRequest({
@@ -282,30 +284,36 @@ function NuntPanel(window)
                 var _getCallbackFromEvent = function(event)
                 {
                     var eventItems = this.getRegistredEvents()[event]; 
-                    var findNameRe = /function (\w+\((.|)+\))/;
-                    var handlerNameList = [];
 
-                    for(var i = 0, ii = eventItems.length; i < ii; i++)
+                    if (eventItems)
                     {
 
-                        var eventItem = eventItems[i];
-                        var functionString = eventItem.handler.toString();
+                        var findNameRe = /function (\w+\((.|)+\))/;
+                        var handlerNameList = [];
 
-                        // handler
-                        var handlerNameMatches = findNameRe.exec(functionString);
-                        var handlerName = "";
-                        if (handlerNameMatches.length > 0)
+                        for(var i = 0, ii = eventItems.length; i < ii; i++)
                         {
-                            handlerName = handlerNameMatches[1];
+
+                            var eventItem = eventItems[i];
+                            var functionString = eventItem.handler.toString();
+
+                            // handler
+                            var handlerNameMatches = findNameRe.exec(functionString);
+                            var handlerName = "";
+                            if (handlerNameMatches.length > 0)
+                            {
+                                handlerName = handlerNameMatches[1];
+                            }
+            
+                            handlerNameList.push({
+                                functionName: handlerName,
+                                functionString: functionString
+                            });
+
                         }
-
-                        handlerNameList.push({
-                            functionName: handlerName,
-                            functionString: functionString
-                        });
-
+                        return handlerNameList;
                     }
-                    return handlerNameList;
+                    return null;
                 }
 
                 script += "window.nunt._getCallbackFromEvent = " + _getCallbackFromEvent.toString();
