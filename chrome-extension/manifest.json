@@ -26,5 +26,5 @@
         "all_frames" : false
       }
     ],
-  "permissions": ["experimental", "tabs", "http://*/*", "https://*/*"]
+  "permissions": ["experimental", "tabs", "background", "http://*/*", "https://*/*"]
 }

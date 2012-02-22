@@ -26,7 +26,11 @@
             
             for (var i = 0, ii = event.amount; i < ii; i++)
             {
-                $("#showNrOfClients").append($("<div class='clientRep'></div>"));
+                var item = $("<div class='clientRep'></div>");
+                $("#showNrOfClients").append(item);
+                item.click(function(){
+                    nunt.send("tjena.nunt", {datamaskin: 1})
+                })
             }
         }
         

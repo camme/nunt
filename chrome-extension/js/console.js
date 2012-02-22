@@ -31,3 +31,8 @@ Console.addMessage = function(type, format, args) {
 })();
 
 var console = Console;
+
+
+
+
+
