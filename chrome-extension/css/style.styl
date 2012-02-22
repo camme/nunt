@@ -22,12 +22,16 @@ h3
     -webkit-box-orient horizontal
     height 100%
     -webkit-box-flex 1
+    overflow hidden
+
 
 #wrapper > div
     -webkit-box-flex 1
+    display -webkit-box
+    -webkit-box-orient vertical
 
 .top
-    position relative
+    -webkit-box-flex 0
 
 #refreshEventList
     position absolute
@@ -36,22 +40,22 @@ h3
 
 
 #events
+    -webkit-box-flex 1
     min-width 300px
     max-width 300px
     width: 300px
     padding 0px
     margin-right 0px
-    height 100%
     border-right 1px solid #bbb
 
 #eventInfo
+    -webkit-box-flex 1
     width 300px
     max-width 300px
     min-width 300px
     padding 0px
     margin-right 0px
     border-right 1px solid #bbb
-    height 100%
 
     .title
         padding-right 10px
@@ -60,7 +64,9 @@ h3
 #eventsList
     list-style none
     margin 0px
+    -webkit-box-flex 1
     padding 0px
+    overflow auto
 
 #eventsList li
     margin 0px
@@ -82,11 +88,27 @@ h3
     display block
     padding 0px 0
     border-bottom #eee dotted 1px
-
+    
+#eventData
+    display none
+    border-top #eee dotted 1px
+    padding-top 4px
+    margin-top 2px
+    
+    .title
+        padding 3px 5px 0
+        
+#eventDataInner
+    margin-top 0px
+    display block
+    padding 0px 0
+    border-bottom #eee dotted 1px
 
 .innerContent
     padding 0px
-
+    -webkit-box-flex 1
+    overflow auto
+        
 .disabled
     opacity .3
 
@@ -108,16 +130,12 @@ h3
     .title
         padding 3px 5px 0
 
-    &> div > div > div
-        height 230px
-        overflow-y scroll
-
-
 
 #triggeredEvents
     padding 0px
     margin-right 0px
     height 100%
+    -webkit-box-flex 1
     min-width 300px
     border-right 1px solid #bbb
     
@@ -139,8 +157,12 @@ h3
             cursor pointer
             clear both
             border-bottom #bbb dotted 1px
-            margin 2px 0
+            padding-top 2px
             position relative
+            &:hover
+                background-color #eee
+            &.active
+                background-color #edf6ca
 
         .eventItemInner
             padding 0 3px
@@ -165,8 +187,11 @@ h3
         .data
             display block
             float left
-            padding 2px 2px
+            padding 2px 0px
             margin-right 5px
+            height 16px
+            width 50px
+            text-overflow ellipsis
 
         .server
             display none
@@ -175,8 +200,9 @@ h3
             color #fff
             padding 0px 4px 3px
             position absolute
-            right 3px
-            top 1px
+            right 2px
+            top 2px
+            border 1px solid white
             border-radius 2px
 
 

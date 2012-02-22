@@ -21,8 +21,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
       }
       else{*/
           var args = JSON.parse(unescape(request.args));
-        console.log()
-        console[args[0]].apply(console, Array.prototype.slice.call(args, 1));
+          console[args[0]].apply(console, Array.prototype.slice.call(args, 1));
        
     }
     else if(request.command == "setContentTabId")
@@ -64,26 +63,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
   
 });
-
-
-/*
-function clicked(tab)
-{
-    chrome.tabs.executeScript(null, {code: "alert(window.nunt)"});
-    alert("run");
-}
-
-chrome.pageAction.onClicked.addListener(clicked);
-
-chrome.extension.sendRequest({
-    command: "fromBackground"
-}, function(response) { 
-    console.log("RESPONSE", response);
-});
-
-
-*/
-
 
 
 

@@ -1,6 +1,6 @@
 {
   "name": "Nunt Debugger",
-  "version": "0.2",
+  "version": "0.55",
   "icons": { 
       "32": "icon_32.png",  
       "64": "icon_64.png",
@@ -8,10 +8,6 @@
   },
   "description": "A small debugger for nunt (javascript/node event system)",
   "background_page": "html/background.html",
-  "page_action": {
-      "default_icon": "icon_32.png", 
-      "default_title": "Open Nunt Debugger"
-    },
     
 "devtools_page": "html/devtools.html",
 
