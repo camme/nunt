@@ -15,7 +15,7 @@ callbacks are etc.
 
 The extension uses chromes experimental APIs and you need to allow them
 to run.
-This is done by going to the url about:flags and activate the
+This is done by going to the url chrome:flags and activate the
 "Experimental Extensions APIs"
 
 After restarting chrome, you just double click on
