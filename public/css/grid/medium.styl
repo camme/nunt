@@ -1,0 +1,23 @@
+@import '../settings.styl'
+@import 'grid-methods.styl'
+
+.grid
+    .row
+        .column2
+            margin-left 0
+            width 100%
+            
+        .column4
+            getColumnWidth 1
+            margin-left 0
+            
+            &:nth-child(3)
+                margin-left 0
+                
+        .column4x3
+            getColumnWidth '3x2'
+            
+        .column4x3+.column4
+            getColumnWidth 3
+            margin-left $gutterPercentWidth * 100%
+            

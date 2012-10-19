@@ -1,0 +1,30 @@
+@import 'bootstrap.min.css';
+p{font-size:1.1em}
+.nav li{color:#fff}
+body{padding-top:120px}
+header{margin-bottom:40px;}
+header h1{font-size:6em;margin-bottom:.3em;font-family:'Crete Round',serif}
+header p{font-size:1.4em;line-height:1.2em}
+p{font-size:1.1em;line-height:1.2em}
+.sugar{margin-top:42px;font-size:1.1em}
+section{padding-top:50px}
+.moreSpace{padding-top:40px}
+.footer{padding:35px 0 36px;margin-top:45px;border-top:1px solid #e5e5e5}
+.function{padding-top:10px;}
+.function .name{font-style:italic;font-weight:bold}
+.desc{display:block;padding-left:20px;padding-bottom:3px}
+.navbar .brand{padding-bottom:8px;}
+.navbar .brand .logo{width:80px;float:left;margin-top:3px;margin-bottom:0}
+.navbar .brand .logo .text{text-indent:-9999em;display:none}
+.navbar .brand .logo .part1{width:6.66px;height:13.32px;border-top:6.66px solid #666;border-left:6.66px solid #666;border-right:6.66px solid #666;float:left}
+.navbar .brand .logo .part2{width:6.66px;height:13.32px;border-bottom:6.66px solid #999;border-left:6.66px solid #999;border-right:6.66px solid #999;float:left}
+.navbar .brand .logo .part3{width:6.66px;height:13.32px;border-top:6.66px solid #666;border-left:6.66px solid #666;border-right:6.66px solid #666;float:left}
+.navbar .brand .logo .part4{width:13.32px;height:13.32px;border-top:6.66px solid #999;border-left:6.66px solid #999;float:left}
+.logo{width:300px;float:left;margin-bottom:40px}
+.logo .text{text-indent:-9999em;display:none}
+.logo .part1{width:24.975px;height:49.95px;border-top:24.975px solid #555;border-left:24.975px solid #555;border-right:24.975px solid #555;float:left}
+.logo .part2{width:24.975px;height:49.95px;border-bottom:24.975px solid #888;border-left:24.975px solid #888;border-right:24.975px solid #888;float:left}
+.logo .part3{width:24.975px;height:49.95px;border-top:24.975px solid #555;border-left:24.975px solid #555;border-right:24.975px solid #555;float:left}
+.logo .part4{width:49.95px;height:49.95px;border-top:24.975px solid #888;border-left:24.975px solid #888;float:left}
+.header p,header p{clear:left}
+.header .subhead,header .subhead{font-size:.75em;padding-top:40px}
