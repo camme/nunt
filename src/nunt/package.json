@@ -1,0 +1,25 @@
+{
+    "name": "nunt",
+    "description": "An event emitter and listener system with seamless communication between client/client, server/server and client/server (through socket io)",
+    "tags": ["web", "socketio", "event", "javascript"],
+    "version": "0.9.5",
+    "author": "camilo tapia <camilo.tapia@gmail.com>",
+    "repository":
+    {
+		"type": "git",
+		"url": "https://github.com/Camme/nunt.git"
+    },
+    "bugs":
+    {
+		"url": "https://github.com/Camme/nunt/issues"
+    },
+    "engines": ["node"],
+    "main": "./lib/nunt",
+    "dependencies":{   
+        "socket.io":"",
+         "express":""
+    },
+    "directories": {
+		"lib": "./lib"
+    }
+}

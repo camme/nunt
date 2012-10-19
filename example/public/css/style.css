@@ -1,0 +1,55 @@
+body
+{
+	margin: 0px;
+	background-color: #000;
+	font: 67.5% Helvetica,Arial,sans-serif; 
+	color: #eee;
+	overflow: hidden;
+}
+
+#messageBox
+{
+	width: 500px;
+		text-align: center;
+	margin: 100px auto 0;
+}
+
+
+#message
+{
+	font-size: 5em;
+	font-weight: bold;
+	text-transform: uppercase;
+	margin: 10px 0 0;
+
+}
+
+#messageHeader
+{
+	font-size: 2em;
+	color: #aaa;
+	margin-bottom: -10px;
+}
+
+#messageExtra
+{
+	color: #aaa;
+}
+
+.clientRep
+{
+	width: 50px;
+	height: 50px;
+	background-color: #00ff00;
+	margin-right: 20px;
+	float: left;
+}
+
+#showNrOfClients
+{
+	margin: 20px;
+	display: box; 
+	box-align: stretch; 
+	box-orient: horizontal;
+	width: 400px;
+}
