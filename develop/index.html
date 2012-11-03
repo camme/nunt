@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" charset="utf-8" src="js/lib/nunt.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        (function(){
+alert("function 1 initiated");
+function done(e)
+{ 
+alert("function 1 after nunt.READY");
+        }
+
+
+        nunt.on(nunt.READY, done);
+        })();
+
+        (function(){
+            alert("function 2 initiated");
+        })();
+
+            </script>
+</head>
+<body>
+	
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <title>Node Example</title>
+    <script type="text/javascript" charset="utf-8" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/nunt/nunt.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        (function(nunt){
+
+            // listen to events
+            nunt.on("event.from.server", update);
+
+            function update(event) {
+                // when we get the message from the server, we just display it
+                document.querySelector(".message").innerHTML = event.message;
+            }
+
+        })(nunt);
+
+    </script>
+</head>
+<body>
+    <h1>Nunt + node + express example</h1>	
+    <div class="message">Waiting...</div>
+</body>
+</html>

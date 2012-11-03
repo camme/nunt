@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <title>Node Example</title>
+    <script type="text/javascript" charset="utf-8" src="js/nunt.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        (function(nunt){
+
+            // listen to events
+            nunt.on(nunt.READY, ready);
+            nunt.on("foo.bar", update);
+
+            function ready(e) {
+                nunt.send("foo.bar", {message: "Hello fro the browser"});
+            }
+
+            function update(event) {
+                // when we get the message from the server, we just display it
+                document.querySelector(".message").innerHTML = event.message;
+            }
+
+        })(nunt);
+
+    </script>
+</head>
+<body>
+    <h1>Nunt + node example</h1>	
+    <div class="message">Waiting...</div>
+</body>
+</html>
