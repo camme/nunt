@@ -1,16 +1,36 @@
-## nunt
+# nunt
 
 Superlightweight event system for javascript. Easy to use just in the client, easy to use on the server and seamless communication between both. If you like to create event based apps, this is for out.
 
-Look at the example to see how easy it works or read more here [http://onezerozeroone.com:8778/](http://onezerozeroone.com:8778/)
+Look at the example to see how easy it works, or read more here [http://onezerozeroone.com:8778/](http://onezerozeroone.com:8778/)
 
-## Install under nodejs
+## Installing it
 
-npm install nunt
+In node
 
-## To use it on the client
+	npm install nunt
 
-Just load nunt and its ready to be used. 
+In the browser
+
+	<script type="text/javascript" charset="utf-8" src="js/nunt.js"></script>
+
+## Basics
+
+You basically use it like this:
+
+	// listen
+	nunt.on("foo", function(event){
+    	console.log("hello " + event.name);
+	});
+
+	// send
+	nunt.send("foo", {name: "bar"});
+
+For more information, go to the documentation site or read the following examples. There are even more examples in the repo.
+
+## Using it on the browser
+
+If you want to use it in the browser, just add the nunt.js file to your scripts and begin to use it:
 
     <script type="text/javascript" charset="utf-8" src="js/nunt.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -22,7 +42,7 @@ Just load nunt and its ready to be used.
             nunt.on("foo.bar", update);
 
             function ready(e) {
-                nunt.send("foo.bar", {message: "Hello fro the browser"});
+                nunt.send("foo.bar", {message: "Hello from the browser"});
             }
 
             function update(event) {
@@ -34,9 +54,35 @@ Just load nunt and its ready to be used.
 
     </script>
 
-## To use it with node and client
+## Using it with node and the browser
 
-On the browser, you include nunt hosted by your app automatically:
+The power of nunt is strongest when used with node. It allows your app to communicate with the same type of events no matter if the events originate from the server or the client. Here is a short example (more in the example folders).
+
+Your node app:
+
+	var nunt = require('nunt');
+
+	// this part is only required if you want to host a web app, otherwise there is no need for an http server
+	var http = require('http');
+	var fs = require('fs');
+	
+	// the web server
+	var server = http.createServer(function (req, res) {
+    	fs.readFile('index.html', function(err, fileContent) { 
+        	res.writeHead(200, {'Content-Type': 'text/html'});
+	        res.end(fileContent);
+    	});
+	}).listen(1337);
+
+	// start nunt
+	nunt.init({ server: server });
+
+	// everytime a client connects, we send a greeting
+	nunt.on(nunt.CONNECTED, function(e) {
+    	nunt.send("event.from.server", {message: "Hello Browser!"});
+	});
+
+On the browser, you include nunt hosted by your app automatically (adding socket.io as well):
 
     <script type="text/javascript" charset="utf-8" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" charset="utf-8" src="/nunt/nunt.js"></script>
@@ -56,29 +102,8 @@ On the browser, you include nunt hosted by your app automatically:
 
     </script>
 
-	
-On your server, you just initiate it like this:
-
-	var nunt = require('nunt');
-
-	// this part is only required if you want to host a web app, otherwise there is no need for an http server
-	var http = require('http');
-	var fs = require('fs');
-	var server = http.createServer(function (req, res) {
-    	fs.readFile('index.html', function(err, fileContent) { 
-        	res.writeHead(200, {'Content-Type': 'text/html'});
-	        res.end(fileContent);
-    	});
-	}).listen(1337);
-
-	nunt.init({ server: server });
-
-	// everytime a client connects, we send a greeting
-	nunt.on(nunt.CONNECTED, function(e) {
-    	nunt.send("event.from.server", {message: "Hello Browser!"});
-	});
-
-Or you could use express and use nunt trough middleware:
+## With express
+Nunt can also be used with express, making the server code a little smaller:
 
 	var nunt = require('nunt');
 	var express = require('express');
@@ -98,6 +123,12 @@ Or you could use express and use nunt trough middleware:
 	});
 
 	app.listen(1337);
+
+## Compability
+Since nunt 1.3.0, the client script for using with node is integrated to the base nunt script. This means that the only needed include is nunt.js on the client.
+
+## The future:
+The base of nunt won't change, but I like to test to convert the events in node to real node events, as opposed to todays custom event emitter. 
 
 ## License 
 
