@@ -15,9 +15,7 @@
     },
     "engines": ["node"],
     "main": "./lib/nunt",
-    "dependencies":{   
-        "socket.io":""
-    },
+    "dependencies":{   },
     "directories": {
 		"lib": "./lib"
     }

@@ -2,7 +2,7 @@
 
 Superlightweight event system for javascript. Easy to use just in the client, easy to use on the server and seamless communication between both. If you like to create event based apps, this is for out.
 
-Look at the example to see how easy it works, or read more here [http://onezerozeroone.com:8778/](http://onezerozeroone.com:8778/)
+Look at the example to see how easy it works, or read more here [http://nunt.onezerozeroone.com/](http://nunt.onezerozeroone.com/)
 
 ## Installing it
 
@@ -56,9 +56,11 @@ If you want to use it in the browser, just add the nunt.js file to your scripts 
 
 ## Using it with node and the browser
 
-The power of nunt is strongest when used with node. It allows your app to communicate with the same type of events no matter if the events originate from the server or the client. Here is a short example (more in the example folders).
+The power of nunt is strongest when used with node. It allows your app to communicate with the same type of events no matter if the events originate from the server or the client. To use it for client/server communication, socket.io is required. Just run 
 
-Your node app:
+	npm install socket.io 
+
+Here is a short example to run with node (more in the example folders):
 
 	var nunt = require('nunt');
 
@@ -106,11 +108,13 @@ On the browser, you include nunt hosted by your app automatically (adding socket
 Nunt can also be used with express, making the server code a little smaller:
 
 	var nunt = require('nunt');
+	var http = require('http');
 	var express = require('express');
-	var app = express.createServer();
+	var app = express();
+	var server = http.createServer(app);
 
 	// this has to be initiated first, before we can use the middleware
-	nunt.init({ server: app });
+	nunt.init({ server: server });
 
 	app.configure(function(){
     	app.use(nunt.middleware());
@@ -119,10 +123,10 @@ Nunt can also be used with express, making the server code a little smaller:
 
 	// everytime a client connects, we send a greeting
 	nunt.on(nunt.CONNECTED, function(e) {
-	    nunt.send("event.from.server", {message: "Hello Browser! I just sent this from the server!"});
+    	nunt.send("event.from.server", {message: "Hello Browser! I just sent this from the server!"});
 	});
 
-	app.listen(1337);
+	server.listen(1337);
 
 ## Compability
 Since nunt 1.3.0, the client script for using with node is integrated to the base nunt script. This means that the only needed include is nunt.js on the client.

@@ -1,9 +1,11 @@
 var nunt = require('../../lib/nunt');
+var http = require('http');
 var express = require('express');
-var app = express.createServer();
+var app = express();
+var server = http.createServer(app);
 
 // this has to be initiated first, before we can use the middleware
-nunt.init({ server: app });
+nunt.init({ server: server });
 
 app.configure(function(){
     app.use(nunt.middleware());
@@ -15,5 +17,4 @@ nunt.on(nunt.CONNECTED, function(e) {
     nunt.send("event.from.server", {message: "Hello Browser! I just sent this from the server!"});
 });
 
-
-app.listen(1337);
+server.listen(1337);
